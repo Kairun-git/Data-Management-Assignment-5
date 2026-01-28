@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import {getAllData, getDataById, addData} from '../db/db.js';
+import {getAllData, getDataById, addData, updateData, deleteData} from '../db/db.js';
 let router = Router()
 
 router.get('/', async (req, res) => {
@@ -21,6 +21,38 @@ router.post('/', async (req, res) => {
         else
             res.status(500).json({"error": "unknown database error"})
     }
+})
+
+router.put('/:id', async (req, res) => {
+  let [exist] = await getDataById(req.params.id)
+  if (!exist) {
+    res.status(404).json({ "error": "record not found" })
+  } else {
+    let result = await updateData(
+      req.params.id,
+      req.body.Firstname,
+      req.body.Surname
+    )
+
+    if (result)
+      res.json({ "message": "Record Updated" })
+    else
+      res.status(500).json({ "error": "unknown database error" })
+  }
+})
+
+router.delete('/:id', async (req, res) => {
+  let [exist] = await getDataById(req.params.id)
+  if (!exist) {
+    res.status(404).json({ "error": "record not found" })
+  } else {
+    let result = await deleteData(req.params.id)
+
+    if (result)
+      res.json({ "message": "Record Deleted" })
+    else
+      res.status(500).json({ "error": "unknown database error" })
+  }
 })
 
 export default router;
